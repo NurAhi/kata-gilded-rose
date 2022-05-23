@@ -1,5 +1,5 @@
 class Item {
-  constructor(name, sellIn, quality){
+  constructor(name, sellIn, quality) {
     this.name = name;
     this.sellIn = sellIn;
     this.quality = quality;
@@ -9,61 +9,71 @@ class Item {
 const maximumQuality = 50;
 const minimumQuality = 0;
 const minimumSellIn = 0;
-const Backstage = 'Backstage passes to a TAFKAL80ETC concert'
-const Brie = 'Aged Brie'
-const Sulfuras = 'Sulfuras, Hand of Ragnaros'
 
 const degradeQuality = (item) => {
-  return  item.quality = item.quality - 1;
-}
+  if (item.quality > minimumQuality) {
+    return (item.quality -= 1);
+  }
+};
 const degradeSellIn = (item) => {
-  return  item.sellIn = item.sellIn - 1;
-}
-
+  if (!Sulfuras(item)) {
+    return (item.sellIn -= 1);
+  }
+};
 
 const upgradeQuality = (item) => {
-  return  item.quality = item.quality + 1;
-}
+  if (item.quality < maximumQuality) {
+    return (item.quality += 1);
+  }
+};
+
+const reduceQuality = (item) => {
+  item.quality -= item.quality;
+};
+
+const Backstage = (item) => {
+  return item.name === "Backstage passes to a TAFKAL80ETC concert";
+};
+const Brie = (item) => {
+  return item.name === "Aged Brie";
+};
+const Sulfuras = (item) => {
+  return item.name === "Sulfuras, Hand of Ragnaros";
+};
 
 class Shop {
-  constructor(items=[]){
+  constructor(items = []) {
     this.items = items;
   }
 
   updateQuality() {
     for (let i = 0; i < this.items.length; i++) {
+      const items = this.items[i];
+      const sellIn = items.sellIn;
 
-      const name = this.items[i].name;
-      const quality = this.items[i].quality;
-      const sellIn = this.items[i].sellIn;
-
-      if (name != Brie && name != Backstage) {
-       if(quality > minimumQuality && name != Sulfuras){
-            degradeQuality(this.items[i])
-          }
+      if (!Brie(items) && !Backstage(items)) {
+        if (!Sulfuras(items)) {
+          degradeQuality(items);
         }
-       else {
-        if (quality < maximumQuality) {
-          upgradeQuality(this.items[i]);
-          if (name == Backstage) {
-            if (sellIn < 11 && quality < maximumQuality) {
-                upgradeQuality(this.items[i])
-            }
-            if (sellIn < 6 && quality < maximumQuality) {
-                upgradeQuality(this.items[i]);
-            }
+      } else {
+        upgradeQuality(items);
+        if (Backstage(items)) {
+          if (sellIn < 11) {
+            upgradeQuality(items);
+          }
+          if (sellIn < 6) {
+            upgradeQuality(items);
           }
         }
       }
-      if (name != Sulfuras) {
-        degradeSellIn(this.items[i])      }
-      if (this.items[i].sellIn < minimumSellIn ) {
-        if (name != Brie) {
-        name != Backstage && this.items[i].quality > 0 && name != Sulfuras ? degradeQuality(this.items[i]) :  this.items[i].quality = this.items[i].quality - this.items[i].quality;
+      degradeSellIn(items);
+      if (items.sellIn < minimumSellIn) {
+        if (!Brie(items)) {
+          !Backstage(items) && !Sulfuras(items)
+            ? degradeQuality(items)
+            : reduceQuality(items);
         } else {
-          if (quality < maximumQuality) {
-            upgradeQuality(this.items[i]);
-          }
+          upgradeQuality(items);
         }
       }
     }
@@ -74,5 +84,5 @@ class Shop {
 
 module.exports = {
   Item,
-  Shop
-}
+  Shop,
+};
